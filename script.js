@@ -1,23 +1,39 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
 $(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
+  var currentDate = dayjs().format("dddd, MMMM D, YYYY");
+  $("#currentDate").text(currentDate);
+
+  // Retrieve the saved form data from local storage
+  var savedData = localStorage.getItem('savedFormData');
+
+  // Check if there is saved form data
+  if (savedData) {
+    // Parse the saved form data from JSON to an object
+    var formData = JSON.parse(savedData);
+
+    // Loop through each time block
+    $('.time-block').each(function () {
+      var timeBlockId = $(this).attr('id');
+      var textarea = $(this).find('.description');
+
+      // Check if the time block id exists in the saved form data
+      if (formData.hasOwnProperty(timeBlockId)) {
+        // Set the textarea value to the saved form data for this time block
+        textarea.val(formData[timeBlockId]);
+      }
+    });
+  }
+
+  // Add event listener to the save buttons
+  $('.saveBtn').on('click', function () {
+    var timeBlockId = $(this).closest('.time-block').attr('id');
+    var textarea = $(this).siblings('.description');
+    var value = textarea.val();
+
+    // Save the form data to an object
+    var formData = JSON.parse(localStorage.getItem('savedFormData')) || {};
+    formData[timeBlockId] = value;
+
+    // Save the updated form data to local storage
+    localStorage.setItem('savedFormData', JSON.stringify(formData));
+  });
 });
